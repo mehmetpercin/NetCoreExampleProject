@@ -1,5 +1,6 @@
 ﻿using Core.Models;
 using Entities.Concrete;
+using Entities.Dtos;
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
@@ -10,8 +11,9 @@ namespace Business.Interfaces
 {
     public interface IProductService
     {
-        Task<Response<List<Product>>> GetProducts(Expression<Func<Product, bool>> filter = null, CancellationToken cancellationToken = default);
-        Task<Response<Product>> AddProduct(Product product, CancellationToken cancellationToken = default);
-        Task<Response<NoContent>> UpdateProduct(int id, CancellationToken cancellationToken = default);
+        Task<Response<List<ProductListDto>>> GetProducts(Expression<Func<Product, bool>> filter = null, CancellationToken cancellationToken = default);
+        Task<Response<ProductListDto>> AddProduct(ProductAddDto productDto, CancellationToken cancellationToken = default);
+        Task<Response<NoContent>> UpdateProduct(ProductUpdateDto productDto, CancellationToken cancellationToken = default);
+        Task<Response<NoContent>> DeleteProduct(int id, CancellationToken cancellationToken = default);
     }
 }

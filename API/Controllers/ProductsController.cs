@@ -1,10 +1,7 @@
 ﻿using Business.Interfaces;
 using Core.Extentions;
-using Microsoft.AspNetCore.Http;
+using Entities.Dtos;
 using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -24,6 +21,24 @@ namespace API.Controllers
         public async Task<IActionResult> GetProducts(CancellationToken cancellationToken = default)
         {
             return CreateActionResultInstance(await _productService.GetProducts(cancellationToken: cancellationToken));
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> AddProduct(ProductAddDto productDto, CancellationToken cancellationToken = default)
+        {
+            return CreateActionResultInstance(await _productService.AddProduct(productDto, cancellationToken: cancellationToken));
+        }
+
+        [HttpPut]
+        public async Task<IActionResult> UpdateProduct(ProductUpdateDto productDto, CancellationToken cancellationToken = default)
+        {
+            return CreateActionResultInstance(await _productService.UpdateProduct(productDto, cancellationToken: cancellationToken));
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteProduct(int id, CancellationToken cancellationToken = default)
+        {
+            return CreateActionResultInstance(await _productService.DeleteProduct(id, cancellationToken: cancellationToken));
         }
     }
 }

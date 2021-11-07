@@ -31,9 +31,12 @@ namespace API
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddControllers();
             services.AddCors(options =>
-                 options.AddDefaultPolicy(builder =>
-                 builder.AllowAnyHeader().AllowAnyMethod().AllowAnyOrigin()));
+            {
+                options.AddPolicy("AllowOrigin",
+                    builder => builder.WithOrigins("http://localhost:5000"));
+            });
             services.AddDependencies();
 
             services.AddDbContext<AppDbContext>(options =>
@@ -41,7 +44,7 @@ namespace API
                 options.UseSqlServer(Configuration["ConnectionStrings:SqlServer"].ToString());
             });
 
-            services.AddControllers();
+            
             services.UseCustomValidationResponse();
             services.AddMemoryCache();
             services.AddSwaggerGen(c =>
@@ -59,7 +62,7 @@ namespace API
                 app.UseSwagger();
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "API v1"));
             }
-            app.UseCors();
+            app.UseCors(builder => builder.WithOrigins("http://localhost:5000").AllowAnyHeader().AllowAnyMethod());
             app.ConfigureExceptionHandler();
             app.UseHttpsRedirection();
 
