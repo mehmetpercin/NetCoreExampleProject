@@ -37,6 +37,9 @@ namespace Business.Concrete
         public async Task<Response<NoContent>> UpdateProduct(int id, CancellationToken cancellationToken = default)
         {
             var data = await _productRepository.GetByIdAsync(id, cancellationToken);
+            if (data == null)
+                return Response<NoContent>.Fail("Data Not Found", 404);
+
             data.Name = "Product2";
             _productRepository.Update(data);
             await _unitOfWork.CommmitAsync(cancellationToken);
