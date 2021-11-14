@@ -26,9 +26,9 @@ namespace Business.Concrete
         }
 
 
-        public async Task<Response<List<ProductListDto>>> GetProducts(Expression<Func<Product, bool>> filter = null, CancellationToken cancellationToken = default)
+        public async Task<Response<List<ProductListDto>>> GetProducts(CancellationToken cancellationToken = default)
         {
-            var products = await _productRepository.GetByFilterWithNoTrackingAsync(filter, cancellationToken);
+            var products = await _productRepository.GetByFilterWithNoTrackingAsync(null, cancellationToken);
             var result = _mapper.Map<List<ProductListDto>>(products);
             return Response<List<ProductListDto>>.Success(result, 200);
         }

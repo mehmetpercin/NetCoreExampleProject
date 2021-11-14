@@ -1,4 +1,5 @@
-﻿using Core.Models;
+﻿using Core.Helpers;
+using Core.Models;
 using Core.UnitOfWork;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -46,7 +47,7 @@ namespace Data.UnitOfWork
         public async Task CommmitAsync(CancellationToken cancellationToken = default)
         {
             var now = DateTimeOffset.Now;
-            var userId = 101;
+            var userId = UserHelper.GetCurrentUser();
             _context.ChangeTracker.Entries().ToList().ForEach(x =>
             {
                 if (x.Entity is IDbObject entity)

@@ -44,6 +44,11 @@ namespace Data.Concrete
             return await _dbSet.FindAsync(new object[] { id }, cancellationToken);
         }
 
+        public async Task<TEntity> GetSingleValueByFilterAsync(Expression<Func<TEntity, bool>> filter, CancellationToken cancellationToken = default)
+        {
+            return await _dbSet.SingleOrDefaultAsync(filter, cancellationToken);
+        }
+
         public void Remove(TEntity entity)
         {
             _dbSet.Remove(entity);

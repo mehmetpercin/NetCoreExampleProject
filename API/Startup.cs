@@ -1,10 +1,16 @@
 using API.Middlewares;
 using Business.DependencyResolvers;
 using Core.Extentions;
+using Core.Helpers;
 using Data;
+using Entities.Concrete;
+using Entities.Configurations;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpsPolicy;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -38,13 +44,43 @@ namespace API
                     builder => builder.WithOrigins("http://localhost:5000"));
             });
             services.AddDependencies();
+            services.AddHttpContextAccessor();
 
             services.AddDbContext<AppDbContext>(options =>
             {
-                options.UseSqlServer(Configuration["ConnectionStrings:SqlServer"].ToString());
+                options.UseSqlServer(Configuration["ConnectionStrings:SqlServer"].ToString(), sqlOptions =>
+                {
+                    sqlOptions.MigrationsAssembly("Data");
+                });
             });
 
-            
+            services.Configure<TokenOption>(Configuration.GetSection("TokenOption"));
+
+            services.AddIdentity<AppUser, AppRole>(opt =>
+            {
+                opt.User.RequireUniqueEmail = true;
+            }).AddEntityFrameworkStores<AppDbContext>().AddDefaultTokenProviders();
+
+            services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            }).AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, opts =>
+            {
+                var tokenOptions = Configuration.GetSection("TokenOption").Get<TokenOption>();
+                opts.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters()
+                {
+                    ValidIssuer = tokenOptions.Issuer,
+                    ValidAudience = tokenOptions.Audience[0],
+                    IssuerSigningKey = SecurityKeyHelper.GetSymmetricSecurityKey(tokenOptions.SecurityKey),
+
+                    ValidateIssuerSigningKey = true,
+                    ValidateAudience = true,
+                    ValidateIssuer = true,
+                    ValidateLifetime = true,
+                };
+            });
+
             services.UseCustomValidationResponse();
             services.AddMemoryCache();
             services.AddSwaggerGen(c =>
@@ -54,7 +90,7 @@ namespace API
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IHttpContextAccessor httpContextAccessor)
         {
             if (env.IsDevelopment())
             {
@@ -71,6 +107,7 @@ namespace API
             app.UseAuthentication();
             app.UseAuthorization();
 
+            UserHelper.SetHttpContextAccessor(httpContextAccessor);
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();

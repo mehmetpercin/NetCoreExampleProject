@@ -10,6 +10,7 @@ namespace Core.Repository
     public interface IGenericRepository<TEntity> where TEntity : class, ITable, new()
     {
         Task<TEntity> GetByIdAsync(int id, CancellationToken cancellationToken = default);
+        Task<TEntity> GetSingleValueByFilterAsync(Expression<Func<TEntity, bool>> filter, CancellationToken cancellationToken = default);
         Task<List<TEntity>> GetByFilterAsync(Expression<Func<TEntity, bool>> filter, CancellationToken cancellationToken = default);
         Task<List<TEntity>> GetByFilterWithNoTrackingAsync(Expression<Func<TEntity, bool>> filter, CancellationToken cancellationToken = default);
         TEntity Update(TEntity entity);
